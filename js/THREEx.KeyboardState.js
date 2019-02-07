@@ -62,14 +62,14 @@ THREEx.KeyboardState.prototype.destroy	= function()
 
 THREEx.KeyboardState.MODIFIERS	= ['shift', 'ctrl', 'alt', 'meta'];
 THREEx.KeyboardState.ALIAS	= {
-	'left'		: 37,
-	'up'		: 38,
-	'right'		: 39,
-	'down'		: 40,
-	'space'		: 32,
-	'pageup'	: 33,
-	'pagedown'	: 34,
-	'tab'		: 9
+	'left':     37,
+	'up':       38,
+	'right':    39,
+	'down':     40,
+	'space':    32,
+	'pageup':   33,
+	'pagedown': 34,
+	'tab':      9
 };
 
 /**
@@ -81,14 +81,14 @@ THREEx.KeyboardState.prototype._onKeyChange	= function(event, pressed)
 	//console.log("onKeyChange", event, pressed, event.keyCode, event.shiftKey, event.ctrlKey, event.altKey, event.metaKey)
 
 	// update this.keyCodes
-	var keyCode		= event.keyCode;
-	this.keyCodes[keyCode]	= pressed;
+	var keyCode             = event.keyCode;
+	this.keyCodes[keyCode]  = pressed;
 
 	// update this.modifiers
-	this.modifiers['shift']= event.shiftKey;
-	this.modifiers['ctrl']	= event.ctrlKey;
-	this.modifiers['alt']	= event.altKey;
-	this.modifiers['meta']	= event.metaKey;
+	this.modifiers['shift'] = event.shiftKey;
+	this.modifiers['ctrl']  = event.ctrlKey;
+	this.modifiers['alt']   = event.altKey;
+	this.modifiers['meta']  = event.metaKey;
 }
 
 /**
