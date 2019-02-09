@@ -14,12 +14,19 @@ class GravApp
   constructor: (@window) ->
     {@document} = @window
 
-    @numParticles = 200
+    @numParticles = 20
 
     @maxSize      = 5
-    @gravConstant = 1
-    @showArrow    = false
+    @gravConstant = 2
+    @showArrow    = true
     @running      = true
+
+    @cameraFactor = 1/50
+
+    @setValuesOf
+      numparticles: @numParticles
+      gravstr:      @gravConstant * 100
+      maxSize:      @maxSize
 
     @init()
 
@@ -27,11 +34,6 @@ class GravApp
 
   # Stuff that gets reset by the reset button
   init: ->
-    @setValuesOf
-      numparticles: @numParticles
-      gravstr:      @gravConstant * 100
-      maxSize:      @maxSize
-
     @largestSize  = 0
     @cooldown     = 0
     @cameraShift  = 10
@@ -52,12 +54,30 @@ class GravApp
 
     randRange = (lower, upper) -> Math.random() * (upper - lower) + lower
 
+    randPos = ->
+      [ randRange -20, 20
+        randRange -20, 20
+        randRange -0, 0
+      ]
+
+    randVel = ->
+      [ randRange -20, 20
+        randRange -20, 20
+        randRange -0.1, 0.1
+      ]
+
     {maxSize} = @
     @particles = [1..@numParticles].map ->
       new Particle
-        radius:   randRange 1, maxSize
-        position: Vector.fromArray [randRange(-20, 20), randRange(-20, 20), 0]
-        velocity: Vector.fromArray [randRange(-20, 20), randRange(-20, 20), 0]
+        radius:   10 ** (randRange(1, maxSize) / 5)
+        position: Vector.fromArray randPos()
+        velocity: Vector.fromArray randVel()
+
+    @particles
+      .push new Particle
+        radius: 30
+        position: new Vector
+        velocity: new Vector
 
     @largestSize = Math.max ( @particles.map (p) -> p.radius )...
 
@@ -70,14 +90,12 @@ class GravApp
     @camera                  = new THREE.PerspectiveCamera 75, @window.innerWidth / @window.innerHeight, 0.1, 1000000
     @delta                   = new Vector
 
-    setPosition @camera,      x: 0, y: 0, z: 300
-    setPosition @arrowHelper, x: 0, y: 0, z: 300
+    setPosition @camera,      x: 0, y: 0, z: 100
+    setPosition @arrowHelper, x: 0, y: 0, z: 0
 
     @scene.add mesh for {mesh} in @particles
 
-    #app
-    #  .scene
-    #  .add @arrowHelper
+    @scene.add @arrowHelper
 
     return @
 
@@ -95,21 +113,24 @@ class GravApp
       .value
 
   hotKeys:
-    h: -> @window.alert '''
-      This is a three dimensional particles simulator that is run using
-      Newton\'s definition for the force of gravity and three.js. If you want to
-      mess with different settings, enter numbers into the boxes and press
-      reload. The vector at the center of the screen shows the direction that
-      the camera is currently moving. You can move the camera with w, a, s, and
-      d, and zoom in and out with j and k, respectively. Use l to toggle the
-      camera vector.
-    '''
-    d: -> shiftCamera x: +1
-    a: -> shiftCamera x: -1
-    w: -> shiftCamera y: +1
-    s: -> shiftCamera y: -1
-    j: -> shiftCamera z: +1
-    k: -> shiftCamera z: -1
+    ###
+    h: ->
+      @window.alert '''
+        This is a three dimensional particles simulator that is run using
+        Newton\'s definition for the force of gravity and three.js. If you
+        want to mess with different settings, enter numbers into the boxes and
+        press reload. The vector at the center of the screen shows the
+        direction that the camera is currently moving. You can move the camera
+        with w, a, s, and d, and zoom in and out with j and k, respectively.
+        Use l to toggle the camera vector.
+      '''
+    ###
+    d: -> @shiftCamera x: +1
+    a: -> @shiftCamera x: -1
+    w: -> @shiftCamera y: +1
+    s: -> @shiftCamera y: -1
+    j: -> @shiftCamera z: +1
+    k: -> @shiftCamera z: -1
     l: ->
       if not @cooldown
         @showArrow = not @showArrow
@@ -140,11 +161,17 @@ class GravApp
 
     return @
 
-
   handleKeypresses: ->
     op.call @ for key, op of @hotKeys when @keyboard.pressed key
 
     @cooldown-- if @cooldown > 0
+
+  computeMeanVelocity: ->
+    total = 0
+    for p in @particles
+      total += p.velocity.mag()
+
+    total / @numParticles
 
   computeCenterOfMass: ->
     centerOfMass = [0, 0, 0]
@@ -153,17 +180,23 @@ class GravApp
     for p in @particles
       for axis, i in ['x', 'y', 'z']
         centerOfMass[i] += p.position[axis] * p.mass
+
       totalMass       += p.mass
 
     Vector.fromArray centerOfMass
       .scaled (1 / totalMass)
 
   updateView: ->
-    {x, y, z} = @computeCenterOfMass().plus @delta
-    z += @largestSize * 40
-    console.log updateView:   {x, y, z}
-    setPosition @camera,      {x, y, z}
+    {x, y, z} = @camera.position
+    {x: x2, y: y2, z: z2} = @computeCenterOfMass().plus @delta
+   
+    x += (x2 - x) * @cameraFactor
+    y += (y2 - y) * @cameraFactor
+    z += (z2 - z) * @cameraFactor
 
+    z += @largestSize * 40
+
+    setPosition @camera,      {x, y, z}
     setPosition @arrowHelper, {x, y, z}
 
     zOffset = if @showArrow then -3 else 600
@@ -172,8 +205,6 @@ class GravApp
     direction = new THREE.Vector3 x, y, z
     @arrowHelper.setDirection direction.normalize()
     @arrowHelper.setLength    direction.length()
-
-    @setValuesOf tick: @tick++
 
     @msPerFrame = (now = Date.now()) - @lastFrameMS
     @lastFrameMS = now
@@ -194,6 +225,7 @@ class GravApp
       @move()
       @updateView()
       @renderer.render @scene, @camera
+
     return @
 
 (app = new GravApp window)
@@ -205,8 +237,8 @@ reInit = (->
     @gravConstant = (@getValueOf 'gravstr'     ) / 100
     @maxSize      = (@getValueOf 'maxSize'     )
 
-    @particles = []
-    @scene = new THREE.Scene
+    #@particles = []
+    #@scene = new THREE.Scene
     @init()
     return @
   ).bind app

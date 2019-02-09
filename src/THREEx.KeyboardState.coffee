@@ -118,5 +118,4 @@ class THREEx.KeyboardState
       if !pressed
         return false
 
-      i++
     true

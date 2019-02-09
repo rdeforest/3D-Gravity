@@ -1,0 +1,25 @@
+{
+  "name": "3D-Gravity",
+  "version": "1.0.0",
+  "description": "3D-Gravity ==========",
+  "main": "index.js",
+  "dependencies": {
+    "coffeescript": "^2.3.2",
+    "three": "^0.101.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NielsKornerup/3D-Gravity.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NielsKornerup/3D-Gravity/issues"
+  },
+  "homepage": "https://github.com/NielsKornerup/3D-Gravity#readme"
+}
