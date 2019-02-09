@@ -1,0 +1,13 @@
+body {
+  background-color: black;
+  color:            white;
+}
+
+canvas {
+  width:  50%;
+  height: 50%;
+}
+
+div {
+  float: left;
+}

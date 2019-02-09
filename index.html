@@ -1,33 +1,34 @@
 <html>
 	<head>
 		<title>3D-Gravity</title>
-		<style>canvas { width: 100%; height: 100% }</style>
+    <link rel="stylesheet" type="text/css" href="index.css">
 	</head>
-	<style>
-		body {
-			background-color: black;
-		}
-		p {
-			color:white;
-		}
-		h1 {
-			color:white;
-		}
-		
-	</style>
 	<body>
-		<p>
-      Number of particles: <input type="number" class="textbox-control form-control" id="numparticles">
-      Strength of gravity: <input type="number" class="textbox-control form-control" id="gravstr">
-      Max size:            <input type="number" class="textbox-control form-control" id="maxSize">
-      <button type="button" class="btn btn-default" onclick="reInit()" id="controls-submit">Reload</button>
-      For help and controls hit h.
-		</p>
+		<div>
+      <p>Number of particles:</p>
+      <p>Strength of gravity:</p>
+      <p>Max size:</p>
+      <p>For help and controls hit h.</p>
+      <p><em>Current tick:</em></p>
+		</div>
+		<div>
+      <p><input type="number" class="textbox-control form-control" id="numparticles"></p>
+      <p><input type="number" class="textbox-control form-control" id="gravstr"></p>
+      <p><input type="number" class="textbox-control form-control" id="maxSize"></p>
+      <p><button type="button" class="btn btn-default" onclick="reInit()" id="controls-submit">Reload</button></p>
+      <p><input id="tick"></p>
+		</div>
 
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js">
+    </script>
+    -->
 		<script src="node_modules/three/build/three.js"></script>
-		<script src="js/THREEx.KeyboardState.js"></script>
-		<script src="js/Grav.js"></script>
 
+		<script src="js/THREEx.KeyboardState.js"></script>
+		<script src="js/vector.js"></script>
+		<script src="js/particle.js"></script>
+		<script src="js/extend-math.js"></script>
+		<script src="js/Grav.js"></script>
 	</body> 
 </html
