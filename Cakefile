@@ -1,14 +1,8 @@
-fs     = require 'fs'
-path   = require 'path'
-
-coffee = require 'coffeescript/src/coffeescript/command'
+{spawn} = require 'child_process'
 
 task 'build', 'compile CoffeeScript', (options) ->
-  srcDir = path.resolve __dirname, 'src'
+  buildProcess = spawn 'coffee', ['-o', 'js', 'src']
 
-  for stat from fs.readdirSync srcDir, withFileTypes: true
-    continue unless stat.isFile() and stat.name.match /coffee$/
-
-    coffee ...
-
+task 'build:watch', 're-compile src whenever a file changes', (options) ->
+  buildProcess = spawn 'coffee', ['-w', '-o', 'js', 'src']
 
