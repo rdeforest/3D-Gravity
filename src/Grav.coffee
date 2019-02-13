@@ -14,7 +14,7 @@ class GravApp
   constructor: (@window) ->
     {@document} = @window
 
-    @numParticles = 20
+    @numParticles = 10
 
     @maxSize      = 5
     @gravConstant = 2
@@ -22,27 +22,12 @@ class GravApp
     @running      = true
 
     @cameraFactor = 1/50
+    @cameraShift  = 100
 
     @setValuesOf
       numparticles: @numParticles
       gravstr:      @gravConstant * 100
       maxSize:      @maxSize
-
-    @init()
-
-    @document.body.appendChild @renderer.domElement
-
-  # Stuff that gets reset by the reset button
-  init: ->
-    @largestSize  = 0
-    @cooldown     = 0
-    @cameraShift  = 10
-
-    @scene        = new THREE.Scene
-    @keyboard     = new THREEx.KeyboardState
-
-    @tick         = 0
-    @lastFrameMS  = Date.now()
 
     if @window.WebGLRenderingContext
       @renderer = new (THREE.WebGLRenderer)
@@ -51,6 +36,20 @@ class GravApp
 
     menuHeight = @document.body.children[0].clientHeight
     @renderer.setSize @window.innerWidth, @window.innerHeight - menuHeight
+
+    @init()
+
+    @document.body.appendChild @renderer.domElement
+
+  # Stuff that also gets reset by the reset button
+  init: ->
+    @largestSize  = 0
+    @cooldown     = 0
+
+    @scene        = new THREE.Scene
+    @keyboard     = new THREEx.KeyboardState
+
+    @lastFrameMS  = Date.now()
 
     randRange = (lower, upper) -> Math.random() * (upper - lower) + lower
 
@@ -61,12 +60,13 @@ class GravApp
       ]
 
     randVel = ->
-      [ randRange -20, 20
-        randRange -20, 20
-        randRange -0.1, 0.1
+      [ randRange -50, 50
+        randRange -50, 50
+        randRange -1, 1
       ]
 
     {maxSize} = @
+
     @particles = [1..@numParticles].map ->
       new Particle
         radius:   10 ** (randRange(1, maxSize) / 5)
@@ -74,7 +74,7 @@ class GravApp
         velocity: Vector.fromArray randVel()
 
     @particles
-      .push new Particle
+      .unshift @sun = new Particle
         radius: 30
         position: new Vector
         velocity: new Vector
@@ -90,12 +90,12 @@ class GravApp
     @camera                  = new THREE.PerspectiveCamera 75, @window.innerWidth / @window.innerHeight, 0.1, 1000000
     @delta                   = new Vector
 
-    setPosition @camera,      x: 0, y: 0, z: 100
+    setPosition @camera,      x: 0, y: 0, z: 600
     setPosition @arrowHelper, x: 0, y: 0, z: 0
 
     @scene.add mesh for {mesh} in @particles
 
-    @scene.add @arrowHelper
+    #@scene.add @arrowHelper
 
     return @
 
@@ -188,7 +188,10 @@ class GravApp
 
   updateView: ->
     {x, y, z} = @camera.position
-    {x: x2, y: y2, z: z2} = @computeCenterOfMass().plus @delta
+    if false
+      {x: x2, y: y2, z: z2} = @computeCenterOfMass().plus @delta
+    else
+      {x: x2, y: y2, z: z2} = @sun.position
    
     x += (x2 - x) * @cameraFactor
     y += (y2 - y) * @cameraFactor
@@ -232,7 +235,6 @@ class GravApp
   .start()
 
 reInit = (->
-    @tick         = 0
     @numParticles = (@getValueOf 'numparticles')
     @gravConstant = (@getValueOf 'gravstr'     ) / 100
     @maxSize      = (@getValueOf 'maxSize'     )

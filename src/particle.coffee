@@ -26,7 +26,7 @@ class Particle
     @mass          = @radius ** 3
 
     @mesh          = new THREE.Mesh(
-        new THREE.SphereGeometry    @radius * 10
+        new THREE.SphereGeometry    @radius * 20
         new THREE.MeshBasicMaterial color: randomColor()
       )
 
